@@ -9,14 +9,14 @@ import { OrderConfirmationPage } from './pages/OrderConfirmationPage';
 import { CartService } from './services/CartService';
 
 class App {
-  private router: Navigo;
-  private container: HTMLElement;
-  private cartService: CartService;
+  private routerInstance: Navigo;
+  private rootContainer: HTMLElement;
+  private cartServiceInstance: CartService;
 
   constructor() {
-    this.container = document.getElementById('app') as HTMLElement;
-    this.router = new Navigo('/', { hash: false });
-    this.cartService = new CartService();
+    this.rootContainer = document.getElementById('app') as HTMLElement;
+    this.routerInstance = new Navigo('/', { hash: false });
+    this.cartServiceInstance = new CartService();
     this.setupRoutes();
     this.setupGlobalStyles();
   }
@@ -34,7 +34,7 @@ class App {
   }
 
   private setupRoutes(): void {
-    this.router
+    this.routerInstance
       .on('/', () => {
         this.renderPage(new HomePage(this));
       })
@@ -60,45 +60,43 @@ class App {
         this.renderPage(new OrderConfirmationPage(this));
       })
       .notFound(() => {
-        this.container.innerHTML = `
+        this.rootContainer.innerHTML = `
           <div class="container" style="background-image: url('./src/assets/images (1).jpeg'); background-size: cover; background-position: center; min-height: 100vh; display: flex; align-items: center; justify-content: center;">
             <div class="error">
               <h2>404</h2>
               <p></p>
-
             </div>
           </div>
         `;
       });
   }
 
-
   private async renderPage(page: any): Promise<void> {
-    this.container.innerHTML = '';
-    await page.render(this.container);
+    this.rootContainer.innerHTML = '';
+    await page.render(this.rootContainer);
     window.scrollTo(0, 0);
-    }
+  }
 
   public start(): void {
-    this.router.resolve();
+    this.routerInstance.resolve();
   }
 
   public navigate(path: string): void {
-    this.router.navigate(path);
+    this.routerInstance.navigate(path);
   }
 
   public getRouter(): Navigo {
-    return this.router;
+    return this.routerInstance;
   }
 
   public getCartService(): CartService {
-    return this.cartService;
+    return this.cartServiceInstance;
   }
 }
 
-const app = new App();
-app.start();
+const appInstance = new App();
+appInstance.start();
 
-(window as any).app = app;
+(window as any).app = appInstance;
 
-export default app; 
+export default appInstance;

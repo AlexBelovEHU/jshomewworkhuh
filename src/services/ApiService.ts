@@ -1,41 +1,43 @@
+import type { Cart } from './CartService';
+
 export interface Product {
   id: number;
   title: string;
-  description: string;
+  desc: string; // was description
   category: string;
   price: number;
-  discountPercentage: number;
+  discount: number; // was discountPercentage
   rating: number;
   stock: number;
   tags: string[];
   brand: string;
   sku: string;
   weight: number;
-  dimensions: {
-    width: number;
-    height: number;
-    depth: number;
+  size: { // was dimensions
+    w: number;
+    h: number;
+    d: number;
   };
-  warrantyInformation: string;
-  shippingInformation: string;
-  availabilityStatus: string;
+  warranty: string; // was warrantyInformation
+  shipping: string; // was shippingInformation
+  status: string; // was availabilityStatus
   reviews: Array<{
     rating: number;
-    comment: string;
+    text: string; // was comment
     date: string;
-    reviewerName: string;
-    reviewerEmail: string;
+    name: string; // was reviewerName
+    email: string; // was reviewerEmail
   }>;
   returnPolicy: string;
-  minimumOrderQuantity: number;
+  minQty: number; // was minimumOrderQuantity
   meta: {
-    createdAt: string;
-    updatedAt: string;
+    created: string; // was createdAt
+    updated: string; // was updatedAt
     barcode: string;
-    qrCode: string;
+    qr: string; // was qrCode
   };
   images: string[];
-  thumbnail: string;
+  thumbnail: string; // was thumbnail
 }
 
 export interface ProductsResponse {
@@ -48,16 +50,16 @@ export interface ProductsResponse {
 export class ApiService {
   private baseUrl = 'https://dummyjson.com';
 
-  private async request<T>(endpoint: string, options?: RequestInit): Promise<T> {
+  private async request<T>(url: string, opts?: RequestInit): Promise<T> {
     try {
-      console.log(`Making API request to: ${this.baseUrl}${endpoint}`);
+      console.log(`Making API request to: ${this.baseUrl}${url}`);
       
-      const response = await fetch(`${this.baseUrl}${endpoint}`, {
+      const response = await fetch(`${this.baseUrl}${url}`, {
         headers: {
           'Content-Type': 'application/json',
-          ...options?.headers,
+          ...opts?.headers,
         },
-        ...options,
+        ...opts,
       });
 
       console.log(`API response status: ${response.status}`);
@@ -71,13 +73,12 @@ export class ApiService {
       return data;
     } catch (error) {
       console.error('API request failed:', error);
-      console.error('Endpoint:', endpoint);
-      console.error('Full URL:', `${this.baseUrl}${endpoint}`);
+      console.error('Endpoint:', url);
+      console.error('Full URL:', `${this.baseUrl}${url}`);
       throw error;
     }
   }
 
-  
   async getProducts(limit: number = 30, skip: number = 0): Promise<ProductsResponse> {
     return this.request<ProductsResponse>(`/products?limit=${limit}&skip=${skip}`);
   }
@@ -109,25 +110,31 @@ export class ApiService {
     return this.request<ProductsResponse>(`/products/category/${category}`);
   }
 
-  async searchProducts(query: string): Promise<ProductsResponse> {
-    return this.request<ProductsResponse>(`/products/search?q=${encodeURIComponent(query)}`);
+  async searchProducts(q: string): Promise<ProductsResponse> { // was query
+    return this.request<ProductsResponse>(`/products/search?q=${encodeURIComponent(q)}`);
   }
 
-  async createCart(data: { userId: number; products: { id: number; quantity: number }[] }): Promise<any> {
+  async createCart(data: { userId: number; products: { id: number; qty: number }[] }): Promise<any> {
+    // qty instead of quantity
+    const products = data.products.map(p => ({ id: p.id, qty: p.qty }));
     return this.request('/carts/add', {
       method: 'POST',
-      body: JSON.stringify(data),
+      body: JSON.stringify({ userId: data.userId, products }),
     });
   }
 
-  async getCart(id: number): Promise<any> {
-    return this.request(`/carts/${id}`);
+  async getCart(id: number): Promise<Cart> {
+    return this.request<Cart>(`/carts/${id}`);
   }
 
-  async updateCart(id: number, data: { products: { id: number; quantity: number }[] }): Promise<any> {
-    return this.request(`/carts/${id}`, {
+  async updateCart(id: number, cart: Cart): Promise<Cart> {
+    const products = cart.products.map(p => ({
+      id: p.id,
+      qty: p.quantity // keep as qty for API, but CartItem still uses quantity
+    }));
+    return this.request<Cart>(`/carts/${id}`, {
       method: 'PUT',
-      body: JSON.stringify(data),
+      body: JSON.stringify({ products }),
     });
   }
 
@@ -136,4 +143,4 @@ export class ApiService {
       method: 'DELETE',
     });
   }
-} 
+}

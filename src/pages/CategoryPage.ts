@@ -282,4 +282,4 @@ export class CategoryPage extends BasePage {
       return String(category);
     }
   }
-} 
+}

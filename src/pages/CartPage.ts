@@ -36,7 +36,7 @@ export class CartPage extends BasePage {
     try {
       this.cart = await this.app.getCartService().getCart();
       
-      if (this.cart && this.cart.products.length === 0) {
+      if (!this.cart || this.cart.products.length === 0) {
         this.renderEmptyCart();
       } else {
         this.renderCart();
@@ -152,8 +152,7 @@ export class CartPage extends BasePage {
   }
 
   private setupCartEventListeners(): void {
-    const quantityBtns = document.querySelectorAll('.quantity-btn');
-    quantityBtns.forEach(btn => {
+    document.querySelectorAll('.quantity-btn').forEach(btn => {
       btn.addEventListener('click', async (e) => {
         const button = e.currentTarget as HTMLButtonElement;
         const action = button.dataset.action;
@@ -165,8 +164,7 @@ export class CartPage extends BasePage {
       });
     });
 
-    const removeBtns = document.querySelectorAll('.cart-item__remove');
-    removeBtns.forEach(btn => {
+    document.querySelectorAll('.cart-item__remove').forEach(btn => {
       btn.addEventListener('click', async (e) => {
         const button = e.currentTarget as HTMLButtonElement;
         const productId = parseInt(button.dataset.productId || '0');
@@ -221,4 +219,4 @@ export class CartPage extends BasePage {
       console.error('Error removing item:', error);
     }
   }
-} 
+}

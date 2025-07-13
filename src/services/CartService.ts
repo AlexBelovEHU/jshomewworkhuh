@@ -1,5 +1,4 @@
 import { ApiService } from './ApiService';
-import { StorageService } from './StorageService';
 
 export interface CartItem {
   id: number;
@@ -7,9 +6,9 @@ export interface CartItem {
   price: number;
   quantity: number;
   total: number;
-  discountPercentage: number;
+  discount: number; // was discountPercentage
   discountedTotal: number;
-  thumbnail: string;
+  thumbnail: string; // was thumbnail
 }
 
 export interface Cart {
@@ -23,52 +22,18 @@ export interface Cart {
 }
 
 export class CartService {
-  private apiService: ApiService;
-  private storageService: StorageService;
+  private api: ApiService; // was apiService
   private cartId: number = 1;
 
   constructor() {
-    this.apiService = new ApiService();
-    this.storageService = new StorageService();
+    this.api = new ApiService();
   }
 
-  private getCartFromStorage(): Cart | null {
-    return this.storageService.getItem<Cart>('localCart');
-  }
-
-  private saveCartToStorage(cart: Cart): void {
-    this.storageService.setItem('localCart', cart);
-  }
-
-  private async getProductDetails(productId: number): Promise<any> {
+  private async fetchCart(): Promise<Cart> { // was fetchCartFromApi
     try {
-      return await this.apiService.getProduct(productId);
+      return await this.api.getCart(this.cartId);
     } catch (error) {
-      console.error('Error fetching product details:', error);
       return {
-        id: productId,
-        title: `Product ${productId}`,
-        price: 0,
-        discountPercentage: 0,
-        thumbnail: ''
-      };
-    }
-  }
-
-  private calculateCartTotals(products: CartItem[]): { total: number; discountedTotal: number; totalProducts: number; totalQuantity: number } {
-    const total = products.reduce((sum, item) => sum + item.total, 0);
-    const discountedTotal = products.reduce((sum, item) => sum + item.discountedTotal, 0);
-    const totalProducts = products.length;
-    const totalQuantity = products.reduce((sum, item) => sum + item.quantity, 0);
-    
-    return { total, discountedTotal, totalProducts, totalQuantity };
-  }
-
-  async getCart(): Promise<Cart> {
-    const cart = this.getCartFromStorage();
-    
-    if (!cart) {
-      const emptyCart: Cart = {
         id: this.cartId,
         products: [],
         total: 0,
@@ -77,96 +42,126 @@ export class CartService {
         totalProducts: 0,
         totalQuantity: 0
       };
-      this.saveCartToStorage(emptyCart);
-      return emptyCart;
     }
-    
-    return cart;
   }
 
-  async addToCart(productId: number, quantity: number = 1): Promise<Cart> {
+  private async updateCart(cart: Cart): Promise<Cart> { // was updateCartOnApi
+    try {
+      return await this.api.updateCart(this.cartId, cart);
+    } catch (error) {
+      return cart;
+    }
+  }
+
+  private async getProduct(id: number): Promise<any> { // was getProductDetails
+    try {
+      return await this.api.getProduct(id);
+    } catch (error) {
+      console.error('Error fetching product:', error);
+      return {
+        id,
+        title: `Product ${id}`,
+        price: 0,
+        discount: 0,
+        thumbnail: ''
+      };
+    }
+  }
+
+  private calcTotals(items: CartItem[]): { total: number; discountedTotal: number; totalProducts: number; totalQuantity: number } { // was calculateCartTotals
+    const total = items.reduce((sum, item) => sum + item.total, 0);
+    const discountedTotal = items.reduce((sum, item) => sum + item.discountedTotal, 0);
+    const totalProducts = items.length;
+    const totalQuantity = items.reduce((sum, item) => sum + item.quantity, 0);
+    return { total, discountedTotal, totalProducts, totalQuantity };
+  }
+
+  async getCart(): Promise<Cart> {
+    return await this.fetchCart();
+  }
+
+  async addToCart(id: number, qty: number = 1): Promise<Cart> { // productId -> id, quantity -> qty
     const cart = await this.getCart();
-    const existingProductIndex = cart.products.findIndex(p => p.id === productId);
-    
-    if (existingProductIndex >= 0) {
-      const existingProduct = cart.products[existingProductIndex];
-      const newQuantity = existingProduct.quantity + quantity;
-      const newTotal = existingProduct.price * newQuantity;
-      const newDiscountedTotal = newTotal * (1 - existingProduct.discountPercentage / 100);
-      
-      cart.products[existingProductIndex] = {
-        ...existingProduct,
-        quantity: newQuantity,
+    const idx = cart.products.findIndex(p => p.id === id);
+
+    if (idx >= 0) {
+      const prod = cart.products[idx];
+      const newQty = prod.quantity + qty;
+      const newTotal = prod.price * newQty;
+      const newDiscountedTotal = newTotal * (1 - prod.discount / 100);
+
+      cart.products[idx] = {
+        ...prod,
+        quantity: newQty,
         total: newTotal,
         discountedTotal: newDiscountedTotal
       };
     } else {
-      const productDetails = await this.getProductDetails(productId);
-      const total = productDetails.price * quantity;
-      const discountedTotal = total * (1 - productDetails.discountPercentage / 100);
-      
+      const prod = await this.getProduct(id);
+      const total = prod.price * qty;
+      const discountedTotal = total * (1 - prod.discount / 100);
+
       const newItem: CartItem = {
-        id: productId,
-        title: productDetails.title,
-        price: productDetails.price,
-        quantity,
+        id,
+        title: prod.title,
+        price: prod.price,
+        quantity: qty,
         total,
-        discountPercentage: productDetails.discountPercentage,
+        discount: prod.discount,
         discountedTotal,
-        thumbnail: productDetails.thumbnail
+        thumbnail: prod.thumbnail
       };
-      
+
       cart.products.push(newItem);
     }
-    
-    const totals = this.calculateCartTotals(cart.products);
+
+    const totals = this.calcTotals(cart.products);
     cart.total = totals.total;
     cart.discountedTotal = totals.discountedTotal;
     cart.totalProducts = totals.totalProducts;
     cart.totalQuantity = totals.totalQuantity;
-    
-    this.saveCartToStorage(cart);
-    return cart;
+
+    return await this.updateCart(cart);
   }
 
-  async updateCartItemQuantity(productId: number, quantity: number): Promise<Cart> {
+  async updateCartItemQuantity(id: number, qty: number): Promise<Cart> {
     const cart = await this.getCart();
-    const productIndex = cart.products.findIndex(p => p.id === productId);
-    
-    if (productIndex >= 0) {
-      if (quantity <= 0) {
-        cart.products.splice(productIndex, 1);
+    const idx = cart.products.findIndex(p => p.id === id);
+
+    if (idx >= 0) {
+      if (qty <= 0) {
+        cart.products.splice(idx, 1);
       } else {
-        const product = cart.products[productIndex];
-        const newTotal = product.price * quantity;
-        const newDiscountedTotal = newTotal * (1 - product.discountPercentage / 100);
-        
-        cart.products[productIndex] = {
-          ...product,
-          quantity,
+        const prod = cart.products[idx];
+        const newTotal = prod.price * qty;
+        const newDiscountedTotal = newTotal * (1 - prod.discount / 100);
+
+        cart.products[idx] = {
+          ...prod,
+          quantity: qty,
           total: newTotal,
           discountedTotal: newDiscountedTotal
         };
       }
-      
-      const totals = this.calculateCartTotals(cart.products);
+
+      const totals = this.calcTotals(cart.products);
       cart.total = totals.total;
       cart.discountedTotal = totals.discountedTotal;
       cart.totalProducts = totals.totalProducts;
       cart.totalQuantity = totals.totalQuantity;
-      
-      this.saveCartToStorage(cart);
+
+      return await this.updateCart(cart);
     }
-    
+
     return cart;
   }
 
-  async removeFromCart(productId: number): Promise<Cart> {
-    return this.updateCartItemQuantity(productId, 0);
+  async removeFromCart(id: number): Promise<Cart> {
+    return this.updateCartItemQuantity(id, 0);
   }
 
   async clearCart(): Promise<Cart> {
-    const emptyCart: Cart = {
+    const empty: Cart = {
       id: this.cartId,
       products: [],
       total: 0,
@@ -175,11 +170,10 @@ export class CartService {
       totalProducts: 0,
       totalQuantity: 0
     };
-    this.saveCartToStorage(emptyCart);
-    return emptyCart;
+    return await this.updateCart(empty);
   }
 
   getCurrentCartId(): number {
     return this.cartId;
   }
-} 
+}

@@ -2,14 +2,14 @@ import { CartService } from './services/CartService';
 import { StorageService } from './services/StorageService';
 
 export class App {
-  private cartService: CartService;
-  private storageService: StorageService;
-  private appElement: HTMLElement;
+  private cartServiceInstance: CartService;
+  private storageServiceInstance: StorageService;
+  private rootElement: HTMLElement;
 
   constructor() {
-    this.cartService = new CartService();
-    this.storageService = new StorageService();
-    this.appElement = document.getElementById('app') as HTMLElement;
+    this.cartServiceInstance = new CartService();
+    this.storageServiceInstance = new StorageService();
+    this.rootElement = document.getElementById('app') as HTMLElement;
   }
 
   init(): void {
@@ -17,7 +17,7 @@ export class App {
   }
 
   render(): void {
-    this.appElement.innerHTML = `
+    this.rootElement.innerHTML = `
       <div id="header-container"></div>
       <main id="main-content"></main>
       <div id="subscribe-banner-container"></div>
@@ -25,14 +25,14 @@ export class App {
   }
 
   getCartService(): CartService {
-    return this.cartService;
+    return this.cartServiceInstance;
   }
 
   getStorageService(): StorageService {
-    return this.storageService;
+    return this.storageServiceInstance;
   }
 
   getAppElement(): HTMLElement {
-    return this.appElement;
+    return this.rootElement;
   }
-} 
+}

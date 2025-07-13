@@ -87,15 +87,15 @@ export class ProductDetailPage extends BasePage {
           
           <div class="product-detail__price">
             <span class="product-detail__current-price">$${product.price.toFixed(2)}</span>
-            ${product.discountPercentage > 0 ? `
-              <span class="product-detail__original-price">$${(product.price / (1 - product.discountPercentage / 100)).toFixed(2)}</span>
-              <span class="product-detail__discount">${product.discountPercentage}% off</span>
+            ${product.discount > 0 ? `
+              <span class="product-detail__original-price">$${(product.price / (1 - product.discount / 100)).toFixed(2)}</span>
+              <span class="product-detail__discount">${product.discount}% off</span>
             ` : ''}
           </div>
           
           <div class="product-detail__description">
             <h3>Description</h3>
-            <p>${product.description}</p>
+            <p>${product.desc}</p>
           </div>
           
           <div class="product-detail__details">
@@ -136,11 +136,11 @@ export class ProductDetailPage extends BasePage {
           ${product.reviews.slice(0, 3).map(review => `
             <div class="review">
               <div class="review__header">
-                <span class="review__author">${review.reviewerName}</span>
+                <span class="review__author">${review.name}</span>
                 <span class="review__rating">${'★'.repeat(Math.floor(review.rating))}${'☆'.repeat(5 - Math.floor(review.rating))}</span>
                 <span class="review__date">${new Date(review.date).toLocaleDateString()}</span>
               </div>
-              <p class="review__comment">${review.comment}</p>
+              <p class="review__comment">${review.text}</p>
             </div>
           `).join('')}
         </div>
@@ -244,4 +244,4 @@ export class ProductDetailPage extends BasePage {
       return String(category);
     }
   }
-} 
+}
