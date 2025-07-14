@@ -3,38 +3,38 @@ import type { Cart } from './CartService';
 export interface Product {
   id: number;
   title: string;
-  desc: string; // was description
+  description: string;
   category: string;
   price: number;
-  discount: number; // was discountPercentage
+  discountPercentage: number; // was discountPercentage
   rating: number;
   stock: number;
   tags: string[];
   brand: string;
   sku: string;
   weight: number;
-  size: { // was dimensions
+  dimensions: { // was dimensions
     w: number;
     h: number;
     d: number;
   };
-  warranty: string; // was warrantyInformation
-  shipping: string; // was shippingInformation
-  status: string; // was availabilityStatus
+  warrantyInformation: string; // was warrantyInformation
+  shippingInformation: string; // was shippingInformation
+  availabilityStatus: string; // was availabilityStatus
   reviews: Array<{
     rating: number;
-    text: string; // was comment
+    comment: string; // was comment
     date: string;
-    name: string; // was reviewerName
-    email: string; // was reviewerEmail
+    reviewerName: string; // was reviewerName
+    reviewerEmail: string; // was reviewerEmail
   }>;
   returnPolicy: string;
-  minQty: number; // was minimumOrderQuantity
+  minimumOrderQuantity: number; // was minimumOrderQuantity
   meta: {
-    created: string; // was createdAt
-    updated: string; // was updatedAt
+    createdAt: string; // was createdAt
+    updatedAt: string; // was updatedAt
     barcode: string;
-    qr: string; // was qrCode
+    qrCode: string; // was qrCode
   };
   images: string[];
   thumbnail: string; // was thumbnail

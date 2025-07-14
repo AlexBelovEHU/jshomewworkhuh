@@ -77,7 +77,7 @@ export class ProductDetailPage extends BasePage {
         <div class="product-detail__info">
           <div class="product-detail__header">
             <h1 class="product-detail__title">${product.title}</h1>
-            <p class="product-detail__brand">${product.brand}</p>
+            <p class="product-detail__brand">${product.brand?product.brand:""}</p>
             <div class="product-detail__rating">
               <span class="rating">${'★'.repeat(Math.floor(product.rating))}${'☆'.repeat(5 - Math.floor(product.rating))}</span>
               <span class="rating-value">${product.rating}</span>
@@ -87,15 +87,15 @@ export class ProductDetailPage extends BasePage {
           
           <div class="product-detail__price">
             <span class="product-detail__current-price">$${product.price.toFixed(2)}</span>
-            ${product.discount > 0 ? `
-              <span class="product-detail__original-price">$${(product.price / (1 - product.discount / 100)).toFixed(2)}</span>
-              <span class="product-detail__discount">${product.discount}% off</span>
+            ${product.discountPercentage > 0 ? `
+              <span class="product-detail__original-price">$${(product.price / (1 - product.discountPercentage / 100)).toFixed(2)}</span>
+              <span class="product-detail__discount">${product.discountPercentage}% off</span>
             ` : ''}
           </div>
           
           <div class="product-detail__description">
             <h3>Description</h3>
-            <p>${product.desc}</p>
+            <p>${product.description?product.description:""}</p>
           </div>
           
           <div class="product-detail__details">
@@ -110,6 +110,10 @@ export class ProductDetailPage extends BasePage {
             <div class="detail-item">
               <span class="detail-label">SKU:</span>
               <span class="detail-value">${product.sku}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Warranty:</span>
+              <span class="detail-value">${product.warrantyInformation}</span>
             </div>
           </div>
           
@@ -133,14 +137,14 @@ export class ProductDetailPage extends BasePage {
       <div class="product-detail__reviews">
         <h3>Customer Reviews</h3>
         <div class="reviews-list">
-          ${product.reviews.slice(0, 3).map(review => `
+          ${product.reviews.map(review => `
             <div class="review">
               <div class="review__header">
-                <span class="review__author">${review.name}</span>
+                <span class="review__author">${review.reviewerName}</span>
                 <span class="review__rating">${'★'.repeat(Math.floor(review.rating))}${'☆'.repeat(5 - Math.floor(review.rating))}</span>
                 <span class="review__date">${new Date(review.date).toLocaleDateString()}</span>
               </div>
-              <p class="review__comment">${review.text}</p>
+              <p class="review__comment">${review.comment}</p>
             </div>
           `).join('')}
         </div>

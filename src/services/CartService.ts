@@ -6,7 +6,7 @@ export interface CartItem {
   price: number;
   quantity: number;
   total: number;
-  discount: number; // was discountPercentage
+  discountPercentage: number; // was discountPercentage
   discountedTotal: number;
   thumbnail: string; // was thumbnail
 }
@@ -62,7 +62,7 @@ export class CartService {
         id,
         title: `Product ${id}`,
         price: 0,
-        discount: 0,
+        discountPercentage: 0,
         thumbnail: ''
       };
     }
@@ -88,7 +88,7 @@ export class CartService {
       const prod = cart.products[idx];
       const newQty = prod.quantity + qty;
       const newTotal = prod.price * newQty;
-      const newDiscountedTotal = newTotal * (1 - prod.discount / 100);
+      const newDiscountedTotal = newTotal * (1 - prod.discountPercentage / 100);
 
       cart.products[idx] = {
         ...prod,
@@ -99,7 +99,7 @@ export class CartService {
     } else {
       const prod = await this.getProduct(id);
       const total = prod.price * qty;
-      const discountedTotal = total * (1 - prod.discount / 100);
+      const discountedTotal = total * (1 - prod.discountPercentage / 100);
 
       const newItem: CartItem = {
         id,
@@ -107,7 +107,7 @@ export class CartService {
         price: prod.price,
         quantity: qty,
         total,
-        discount: prod.discount,
+        discountPercentage: prod.discountPercentage,
         discountedTotal,
         thumbnail: prod.thumbnail
       };
@@ -134,7 +134,7 @@ export class CartService {
       } else {
         const prod = cart.products[idx];
         const newTotal = prod.price * qty;
-        const newDiscountedTotal = newTotal * (1 - prod.discount / 100);
+        const newDiscountedTotal = newTotal * (1 - prod.discountPercentage / 100);
 
         cart.products[idx] = {
           ...prod,

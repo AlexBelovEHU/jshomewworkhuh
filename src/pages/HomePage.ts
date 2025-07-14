@@ -146,16 +146,13 @@ export class HomePage extends BasePage {
         let categorySlug: string;
         let categoryName: string;
         
-        if (typeof category === 'string') {
-          categorySlug = category;
-          categoryName = this.formatCategoryName(category);
-        } else if (category && typeof category === 'object') {
-          categorySlug = category.slug || category.name || String(category);
-          categoryName = category.name || this.formatCategoryName(categorySlug);
+        if (category && typeof category === 'object') {
+          categorySlug = category.slug;
+          categoryName = category.name;
         } else {
-          console.warn('Invalid category format:', category);
-          categorySlug = String(category);
-          categoryName = String(category);
+          console.error('Invalid category format:', category);
+          categorySlug = "idk";
+          categoryName = ":(";
         }
         
         return `
@@ -168,31 +165,10 @@ export class HomePage extends BasePage {
           </div>
         `;
       } catch (error) {
-        console.error('Error formatting category name:', category, error);
-        return `
-          <div class="category-card">
-            <a href="/category/${encodeURIComponent(String(category))}" class="category-card__link" data-navigo>
-              <div class="category-card__content">
-                <h3 class="category-card__title">${String(category)}</h3>
-              </div>
-            </a>
-          </div>
-        `;
+        console.error(":(")
       }
     }).join('');
 
     this.setupNavigation();
-  }
-
-  private formatCategoryName(category: string): string {
-    if (typeof category !== 'string') {
-      console.warn('Category is not a string:', category);
-      return String(category);
-    }
-    
-    return category
-      .split('-')
-      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(' ');
   }
 } 

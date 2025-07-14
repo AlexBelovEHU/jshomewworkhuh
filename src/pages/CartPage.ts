@@ -178,8 +178,7 @@ export class CartPage extends BasePage {
     const checkoutBtn = document.getElementById('checkout-btn');
     if (checkoutBtn) {
       checkoutBtn.addEventListener('click', () => {
-        window.history.pushState({}, '', '/checkout');
-        window.dispatchEvent(new PopStateEvent('popstate'));
+        this.app.navigate('/checkout');
       });
     }
   }

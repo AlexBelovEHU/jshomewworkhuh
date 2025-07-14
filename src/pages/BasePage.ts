@@ -57,7 +57,7 @@ export abstract class BasePage {
                   <li><a href="#" style="color: #555; text-decoration: none;">Free eBooks</a></li>
                   <li><a href="#" style="color: #555; text-decoration: none;">Development Tutorial</a></li>
                   <li><a href="#" style="color: #555; text-decoration: none;">How to - Blog</a></li>
-                  <li><a href="https://youtu.be/dQw4w9WgXcQ" style="color: #555; text-decoration: none;">Youtube Playlist</a></li>
+                  <li><a href="" style="color: #555; text-decoration: none;">Youtube Playlist</a></li>
                   
                 </ul>
               </div>

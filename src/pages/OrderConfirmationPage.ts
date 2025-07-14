@@ -39,7 +39,7 @@ export class OrderConfirmationPage extends BasePage {
     `;
 
     this.setupNavigation();
-    this.startCountdown();
+    this.redirectAfterDelay(5);
   }
 
   private generateOrderNumber(): string {
@@ -59,22 +59,28 @@ export class OrderConfirmationPage extends BasePage {
     });
   }
 
-  private startCountdown(): void {
-    let seconds = 5;
+  // Uses only a single timeout, no event loop
+  private redirectAfterDelay(seconds: number): void {
     const countdownElement = document.getElementById('countdown');
-    
-    const timer = setInterval(() => {
-      seconds--;
-      
-      if (countdownElement) {
-        countdownElement.textContent = seconds.toString();
+    if (!countdownElement) return;
+
+    countdownElement.textContent = seconds.toString();
+
+    // Animate countdown without setInterval
+    let start = Date.now();
+    const updateCountdown = () => {
+      const elapsed = Math.floor((Date.now() - start) / 1000);
+      const remaining = Math.max(seconds - elapsed, 0);
+      countdownElement.textContent = remaining.toString();
+      if (remaining > 0) {
+        requestAnimationFrame(updateCountdown);
       }
-      
-      if (seconds <= 0) {
-        clearInterval(timer);
-        window.history.pushState({}, '', '/');
-        window.dispatchEvent(new PopStateEvent('popstate'));
-      }
-    }, 1000);
+    };
+    requestAnimationFrame(updateCountdown);
+
+    setTimeout(() => {
+      window.history.pushState({}, '', '/');
+      window.dispatchEvent(new PopStateEvent('popstate'));
+    }, seconds * 1000);
   }
 } 

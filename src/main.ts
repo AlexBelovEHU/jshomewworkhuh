@@ -61,7 +61,7 @@ class App {
       })
       .notFound(() => {
         this.rootContainer.innerHTML = `
-          <div class="container" style="background-image: url('./src/assets/images (1).jpeg'); background-size: cover; background-position: center; min-height: 100vh; display: flex; align-items: center; justify-content: center;">
+          <div class="container" background-size: cover; background-position: center; min-height: 100vh; display: flex; align-items: center; justify-content: center;">
             <div class="error">
               <h2>404</h2>
               <p></p>

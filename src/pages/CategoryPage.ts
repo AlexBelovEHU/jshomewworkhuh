@@ -8,7 +8,7 @@ export class CategoryPage extends BasePage {
   private filteredProducts: Product[] = [];
   private selectedBrands: Set<string> = new Set();
   private minPrice: number = 1;
-  private maxPrice: number = 20000;
+  private maxPrice: number = 2000;
 
   constructor(app: any, categoryName: string) {
     super(app);
@@ -50,12 +50,12 @@ export class CategoryPage extends BasePage {
                   <h4>Price Range</h4>
                   <div class="filters__price">
                     <div class="price-inputs">
-                      <input type="number" id="min-price" min="1" max="20000" value="1" placeholder="Min">
+                      <input type="number" id="min-price" min="1" max="2000" value="1" placeholder="Min">
                       <span>-</span>
-                      <input type="number" id="max-price" min="1" max="20000" value="20000" placeholder="Max">
+                      <input type="number" id="max-price" min="1" max="2000" value="2000" placeholder="Max">
                     </div>
                     <div class="price-range">
-                      <input type="range" id="price-range" min="1" max="20000" value="20000">
+                      <input type="range" id="price-range" min="1" max="2000" value="2000">
                     </div>
                   </div>
                 </div>
@@ -114,7 +114,7 @@ export class CategoryPage extends BasePage {
       });
 
       maxPriceInput.addEventListener('input', () => {
-        this.maxPrice = parseInt(maxPriceInput.value) || 20000;
+        this.maxPrice = parseInt(maxPriceInput.value) || 2000;
         priceRange.value = this.maxPrice.toString();
       });
 
@@ -194,6 +194,10 @@ export class CategoryPage extends BasePage {
             }
             <div class="product-card__price">
               <span class="product-card__current-price">$${product.price.toFixed(2)}</span>
+              ${product.discountPercentage > 0 ? `
+                <span class="product-card__original-price">$${(product.price / (1 - product.discountPercentage / 100)).toFixed(2)}</span>
+                <span class="product-card__discount">${product.discountPercentage}% off</span>
+              ` : ''}
             </div>
             <div class="product-card__rating">
               <span class="rating">${'★'.repeat(Math.floor(product.rating))}${'☆'.repeat(5 - Math.floor(product.rating))}</span>
@@ -254,7 +258,7 @@ export class CategoryPage extends BasePage {
   private resetFilters(): void {
     this.selectedBrands.clear();
     this.minPrice = 1;
-    this.maxPrice = 20000;
+    this.maxPrice = 2000;
     this.filteredProducts = [...this.allProducts];
 
     const minPriceInput = document.getElementById('min-price') as HTMLInputElement;
@@ -262,8 +266,8 @@ export class CategoryPage extends BasePage {
     const priceRange = document.getElementById('price-range') as HTMLInputElement;
 
     if (minPriceInput) minPriceInput.value = '1';
-    if (maxPriceInput) maxPriceInput.value = '20000';
-    if (priceRange) priceRange.value = '20000';
+    if (maxPriceInput) maxPriceInput.value = '2000';
+    if (priceRange) priceRange.value = '2000';
 
     this.renderProducts();
     this.renderBrandFilters();

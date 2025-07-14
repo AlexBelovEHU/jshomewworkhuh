@@ -31,8 +31,8 @@ export class CheckoutPage extends BasePage {
       this.cart = await this.app.getCartService().getCart();
       
       if (!this.cart || this.cart.products.length === 0) {
-        window.history.pushState({}, '', '/cart');
-        window.dispatchEvent(new PopStateEvent('popstate'));
+        this.app.navigate('/cart');
+
         return;
       }
       
@@ -200,7 +200,6 @@ export class CheckoutPage extends BasePage {
   }
 
   private handleSubmit(): void {
-    window.history.pushState({}, '', '/order-confirmation');
-    window.dispatchEvent(new PopStateEvent('popstate'));
+    this.app.navigate('/order-confirmation');
   }
-} 
+}
